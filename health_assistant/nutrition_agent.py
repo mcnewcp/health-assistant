@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 from agents import (
     Agent, 
     Runner, 
@@ -11,9 +10,6 @@ from agents import (
 )
 from pyairtable import Api
 import sys
-
-# load env vars
-load_dotenv()
 
 # setup nutrition log tool
 @function_tool
@@ -63,10 +59,10 @@ def write_nutrition_log(
     return record["id"]
 
 # setup agent
-with open("instructions/nutrition-assistant.txt", "r") as file:
+with open("instructions/nutrition-agent.txt", "r") as file:
     instructions = file.read()
-agent = Agent(
-    name="Nutrition Assistant", 
+nutrition_agent = Agent(
+    name="Nutrition Agent", 
     instructions=instructions,
     model="gpt-4o",
     tools = [
@@ -77,21 +73,7 @@ agent = Agent(
                 "city": "Franklin" 
             }),
         write_nutrition_log
-    ]
+    ],
+    handoff_description="""Determines nutritional information and logs it for the user.  
+                        Any prompt mentioning food the user has eaten should be passed here."""
 )
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please provide a prompt as a command line argument")
-        sys.exit(1)
-    prompt = " ".join(sys.argv[1:])
-    result = Runner.run_sync(agent, prompt)
-    for item in result.new_items:
-        if isinstance(item, ToolCallItem):
-            print(f"Tool call: {item.raw_item.type}")
-        elif isinstance(item, MessageOutputItem):
-            output_text = item.raw_item.content
-            for ot in output_text:
-                print(f"\n\nMessage: {ot.text}")
-        elif isinstance(item, ToolCallOutputItem):
-            print(f"Tool call output: {item.output}")
