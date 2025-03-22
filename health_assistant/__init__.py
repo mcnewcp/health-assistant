@@ -1,8 +1,3 @@
-from .nutrition_agent import nutrition_agent
+from .health_assistant import health_assistant
 
-from dotenv import load_dotenv
-
-# load env vars
-load_dotenv()
-
-__all__ = [nutrition_agent]
+__all__ = [health_assistant]
