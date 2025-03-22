@@ -77,19 +77,3 @@ nutrition_agent = Agent(
     handoff_description="""Determines nutritional information and logs it for the user.  
                         Any prompt mentioning food the user has eaten should be passed here."""
 )
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please provide a prompt as a command line argument")
-        sys.exit(1)
-    prompt = " ".join(sys.argv[1:])
-    result = Runner.run_sync(nutrition_agent, prompt)
-    for item in result.new_items:
-        if isinstance(item, ToolCallItem):
-            print(f"Tool call: {item.raw_item.type}")
-        elif isinstance(item, MessageOutputItem):
-            output_text = item.raw_item.content
-            for ot in output_text:
-                print(f"\n\nMessage: {ot.text}")
-        elif isinstance(item, ToolCallOutputItem):
-            print(f"Tool call output: {item.output}")
