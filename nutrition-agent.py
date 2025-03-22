@@ -63,7 +63,7 @@ def write_nutrition_log(
     return record["id"]
 
 # setup agent
-with open("instructions/nutrition-assistant.txt", "r") as file:
+with open("instructions/nutrition-agent.txt", "r") as file:
     instructions = file.read()
 agent = Agent(
     name="Nutrition Assistant", 
