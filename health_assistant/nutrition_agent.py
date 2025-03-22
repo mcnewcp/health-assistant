@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 from agents import (
     Agent, 
     Runner, 
@@ -11,9 +10,6 @@ from agents import (
 )
 from pyairtable import Api
 import sys
-
-# load env vars
-load_dotenv()
 
 # setup nutrition log tool
 @function_tool
