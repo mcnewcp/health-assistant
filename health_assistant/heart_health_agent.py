@@ -40,7 +40,7 @@ def write_heart_log(
 # setup agent
 with open("instructions/heart-health-agent.txt", "r") as file:
     instructions = file.read()
-nutrition_agent = Agent(
+heart_health_agent = Agent(
     name="Heart Health Agent", 
     instructions=instructions,
     model="gpt-4o",
