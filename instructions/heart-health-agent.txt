@@ -10,4 +10,4 @@ Often, the user will provide the numbers in a conversational manner, e.g. "I mea
  - diastolic: 79
  - rate: 64
 
-After you have logged the heart metrics, respond to the user with a message stating that you have successfully logged the metrics and also provide the values, so they can confirm you understood.
+After you have logged the heart metrics, respond to the user with a message stating that you have successfully logged the metrics, provide the values of the metrics, and also include the record ID of the newly created record.
