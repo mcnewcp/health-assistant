@@ -1,9 +1,5 @@
 import os
-from agents import (
-    Agent, 
-    WebSearchTool, 
-    function_tool,
-)
+from agents import Agent, function_tool
 from pyairtable import Api
 
 # setup heart health log tool
