@@ -43,7 +43,7 @@ with open("instructions/heart-health-agent.txt", "r") as file:
 heart_health_agent = Agent(
     name="Heart Health Agent", 
     instructions=instructions,
-    model="gpt-4o",
+    model="gpt-4o-mini",
     tools = [
         write_heart_log
     ],
