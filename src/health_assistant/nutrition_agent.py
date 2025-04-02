@@ -5,7 +5,7 @@ from agents import (
     function_tool,
 )
 from pyairtable import Api
-import sys
+from .instructions import nutrition_agent_instructions
 
 # setup nutrition log tool
 @function_tool
@@ -55,11 +55,9 @@ def write_nutrition_log(
     return record["id"]
 
 # setup agent
-with open("instructions/nutrition-agent.txt", "r") as file:
-    instructions = file.read()
 nutrition_agent = Agent(
     name="Nutrition Agent", 
-    instructions=instructions,
+    instructions=nutrition_agent_instructions,
     model="gpt-4o",
     tools = [
         WebSearchTool(user_location={
