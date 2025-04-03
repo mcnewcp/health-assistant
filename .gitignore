@@ -35,3 +35,6 @@ wheels/
 *.swp
 *.swo
 .DS_Store
+
+# secrets
+secrets.toml
