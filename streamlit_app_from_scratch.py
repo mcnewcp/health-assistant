@@ -1,8 +1,7 @@
 import streamlit as st
 from health_assistant import health_assistant
 from agents import Runner, Agent, ItemHelpers
-from openai.types.responses import ResponseTextDeltaEvent, ResponseOutputItemAddedEvent, ResponseFunctionToolCall
-from typing import Dict, List, AsyncGenerator
+from openai.types.responses import ResponseTextDeltaEvent
 import asyncio
 
 st.title("Health Assistant `v0.01`")
