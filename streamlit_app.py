@@ -1,7 +1,7 @@
 import streamlit as st
 from health_assistant import health_assistant
 from agents import Runner, Agent
-from openai.types.responses import ResponseTextDeltaEvent
+from openai.types.responses import ResponseTextDeltaEvent, ResponseOutputItemAddedEvent, ResponseFunctionToolCall
 from typing import Dict, List, AsyncGenerator
 import asyncio
 
@@ -40,6 +40,8 @@ async def generate_response_stream(agent: Agent, prompt: str) -> AsyncGenerator[
                 print(f"[agent handover]: {current_agent} -> {new_agent}")
                 yield {"step": f"🔄 Handover **{current_agent}** -> **{new_agent}**"}
                 current_agent = new_agent
+        elif event.type == "raw_response_event" and isinstance(event.data, ResponseOutputItemAddedEvent) and isinstance(event.data.item, ResponseFunctionToolCall):
+            yield {"tool_call": f"🔄 Tool Call: {event.data.item.name}"}
         elif event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
             yield {"delta": event.data.delta}
 
@@ -47,13 +49,15 @@ def render_streaming_response(generator) -> Dict:
     """Renders streaming content to Streamlit."""
     with st.chat_message("assistant"):
         steps_expander = st.expander("Steps")
+        tool_call_expander = st.expander("Tool Calls")
         message_container = st.empty()
-        
+
         full_response = ""
         steps = []
+        tool_calls = ""
         
         async def stream_response():
-            nonlocal full_response, steps
+            nonlocal full_response, steps, tool_calls
             async for chunk in generator:
                 if "delta" in chunk:
                     full_response += chunk["delta"]
@@ -61,7 +65,10 @@ def render_streaming_response(generator) -> Dict:
                 elif "step" in chunk:
                     steps.append(chunk["step"])
                     steps_expander.markdown("\n".join(steps))
-            return {"response": full_response, "steps": steps}
+                elif "tool_call" in chunk:
+                    tool_calls += f"\n{chunk["tool_call"]}"
+                    tool_call_expander.markdown(tool_calls)
+            return {"response": full_response, "steps": steps, "tool_calls": tool_calls}
         
         # Streamlit requires running the async function in a thread
         final_result = asyncio.run(stream_response())
@@ -86,7 +93,8 @@ if prompt := st.chat_input("Hello!  I'm your health assistant.  What's up?", key
     st.session_state["messages"].append({
         "role": "assistant",
         "content": response["response"],
-        "steps": response["steps"]
+        "steps": response["steps"],
+        "tool_calls": response["tool_calls"],
     })
 
 
