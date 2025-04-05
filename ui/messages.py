@@ -1,5 +1,4 @@
 import streamlit as st
-from health_assistant import health_assistant
 from agents import Runner, Agent
 from openai.types.responses import (
     ResponseTextDeltaEvent,
