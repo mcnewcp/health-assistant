@@ -7,6 +7,23 @@ from openai.types.responses import (
 )
 
 async def stream_response(agent: Agent, prompt: str):
+    """
+    Stream an AI agent's response to the Streamlit UI, handling various response events.
+
+    This function processes different types of events from the agent's response stream and
+    displays them appropriately in the Streamlit interface. It handles:
+    - Text streaming from the agent
+    - Web search notifications
+    - Agent handoffs between different AI agents
+    - Tool calls and their outputs
+
+    Args:
+        agent (Agent): The AI agent instance that will process the prompt
+        prompt (str): The user's input text to be processed by the agent
+
+    Returns:
+        The result object from the agent's run
+    """
     result = Runner.run_streamed(agent, input=prompt)
 
     current_agent = agent.name
