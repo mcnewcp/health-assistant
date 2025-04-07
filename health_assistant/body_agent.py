@@ -1,6 +1,7 @@
 import os
 from agents import Agent, function_tool
 from pyairtable import Api
+from .instructions import body_agent_instructions
 
 # setup body data log tool
 @function_tool
@@ -41,11 +42,9 @@ def write_body_log(
     return record["id"]
 
 # setup agent
-with open("instructions/body-agent.txt", "r") as file:
-    instructions = file.read()
 body_agent = Agent(
     name="Body Composition Agent", 
-    instructions=instructions,
+    instructions=body_agent_instructions,
     model="gpt-4o-mini",
     tools = [
         write_body_log

@@ -1,6 +1,7 @@
 import os
 from agents import Agent, function_tool
 from pyairtable import Api
+from .instructions import heart_health_agent_instructions
 
 # setup heart health log tool
 @function_tool
@@ -38,11 +39,9 @@ def write_heart_log(
     return record["id"]
 
 # setup agent
-with open("instructions/heart-health-agent.txt", "r") as file:
-    instructions = file.read()
 heart_health_agent = Agent(
     name="Heart Health Agent", 
-    instructions=instructions,
+    instructions=heart_health_agent_instructions,
     model="gpt-4o-mini",
     tools = [
         write_heart_log
