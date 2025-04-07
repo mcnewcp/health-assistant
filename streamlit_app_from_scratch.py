@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit import session_state as ss
 from health_assistant import health_assistant
-from ui import stream_response, save_agent_response
+from ui import stream_response, save_agent_response, display_messages
 import asyncio
 
 st.title("Health Assistant `v0.01`")
@@ -11,9 +11,7 @@ if "messages" not in ss:
     ss.messages = []
 
 # Display chat messages from history on app rerun
-for message in ss.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+display_messages()
 
 # Accept user input
 if prompt := st.chat_input("Hello!  I'm your health assistant.  What's up?", key = "user_input"):

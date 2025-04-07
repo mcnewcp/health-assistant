@@ -159,15 +159,38 @@ def save_agent_response(response):
                     "role": "assistant",
                     "type": "tool_call",
                     "name": item.raw_item.name,
-                    "content": f'**Inputs**: /n`{item.raw_item.arguments}`'
+                    "content": f'**Inputs**: \n`{item.raw_item.arguments}`'
                 }
             )
             after_tool_call = True
         elif item.type == "tool_call_output_item" and after_tool_call:
-            ss.messages[-1]["content"] += f'/n**Outputs**: /n`{item.output}`'
+            ss.messages[-1]["content"] += f'\n**Outputs**: \n`{item.output}`'
             after_tool_call = False
         
         # ignore all other item types
         else:
             pass
 
+def display_messages():
+    for m in ss.messages:
+        # user messages
+        if m["role"] == "user":
+            with st.chat_message("user"):
+                st.markdown(m["content"])
+        # assistant
+        if m["role"] == "assistant":
+            # messages
+            if m["type"] == "message":
+                with st.chat_message("assistant"):
+                    st.markdown(m["content"])
+            # agent handoff
+            elif m["type"] == "handoff":
+                st.info(m["content"], icon="🧠")
+            # web search
+            elif m["type"] == "web_search":
+                st.success(m["content"], icon="🔍")
+            # tool calls
+            elif m["type"] == "tool_call":
+                with st.status(f"🛠️ Called Tool: {m["name"]}"):
+                    st.markdown(m["content"])
+        
