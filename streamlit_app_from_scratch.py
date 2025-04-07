@@ -21,12 +21,9 @@ if prompt := st.chat_input("Hello!  I'm your health assistant.  What's up?", key
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Display assistant response in chat message container
+    # stream assistant response
     with st.chat_message("assistant"):
         response = asyncio.run(stream_response(health_assistant, prompt))
     
     # save response to session state messages
     save_agent_response(response)
-
-    # temp write session state messages
-    st.write(ss.messages)
