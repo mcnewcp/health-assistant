@@ -1,9 +1,12 @@
 import streamlit as st
+from streamlit import session_state as ss
 from agents import Runner, Agent
+from agents.result import RunResultStreaming
 from openai.types.responses import (
     ResponseTextDeltaEvent,
     ResponseFunctionToolCall,
-    ResponseWebSearchCallCompletedEvent
+    ResponseWebSearchCallCompletedEvent,
+    ResponseFunctionWebSearch
 )
 
 async def stream_response(agent: Agent, prompt: str):
@@ -82,3 +85,89 @@ async def stream_response(agent: Agent, prompt: str):
 
     print("=== Run complete ===")
     return result
+
+def save_agent_response(response):
+    """
+    Processes and saves agent responses to the session state messages.
+    This function handles different types of response items and formats them appropriately
+    for storage in the session state. It processes:
+    - Agent handoffs
+    - Web search calls
+    - Messages
+    - Tool calls and their outputs
+    Args:
+        response: A response object containing new_items to be processed.
+                 Expected to have a 'new_items' attribute with items having 'type'
+                 and 'raw_item' attributes.
+    The function appends formatted dictionaries to ss.messages with the following structure:
+        "type": <message_type>,
+        "content": <formatted_content>,
+        "name": <tool_name> (only for tool calls)
+    Note:
+        - Uses global session state (ss) to store messages
+        - Tracks tool calls to properly pair inputs with outputs
+        - Ignores unrecognized item types
+    """
+    
+    # keep track if the previous item was a tool call
+    # this allows us to add the tool call outputs to the corresponding inputs
+    after_tool_call = False
+    
+    for item in response.new_items:
+        # agent handoffs
+        if item.type == "handoff_output_item":
+            ss.messages.append(
+                {
+                    "role": "assistant",
+                    "type": "handoff",
+                    "content": f"🧠 Agent handoff: `{item.source_agent.name}` → `{item.target_agent.name}`"
+                }
+            )
+            after_tool_call = False
+        
+        # web search calls
+        elif item.type == "tool_call_item" and isinstance(item.raw_item, ResponseFunctionWebSearch):
+            ss.messages.append(
+                {
+                    "role": "assistant",
+                    "type": "web_search",
+                    "content": "🔍 Searched the web"
+                }
+            )
+            after_tool_call = False
+
+        # messages
+        elif item.type == "message_output_item":
+            for m in item.raw_item.content:
+                try:
+                    ss.messages.append(
+                        {
+                            "role": "assistant",
+                            "type": "message",
+                            "content": m.text
+                        }
+                    )
+                except Exception:
+                    pass
+            after_tool_call = False
+            
+        # tool calls
+        elif item.type == "tool_call_item" and isinstance(item.raw_item, ResponseFunctionToolCall):
+            last_tool_call_name = item.raw_item.name
+            ss.messages.append(
+                {
+                    "role": "assistant",
+                    "type": "tool_call",
+                    "name": item.raw_item.name,
+                    "content": f'**Inputs**: /n`{item.raw_item.arguments}`'
+                }
+            )
+            after_tool_call = True
+        elif item.type == "tool_call_output_item" and after_tool_call:
+            ss.messages[-1]["content"] += f'/n**Outputs**: /n`{item.output}`'
+            after_tool_call = False
+        
+        # ignore all other item types
+        else:
+            pass
+
