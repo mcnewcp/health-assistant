@@ -168,6 +168,27 @@ def save_agent_response(response):
             pass
 
 def display_messages():
+    """Display chat messages from session state's history.
+
+    Iterates through messages stored in the session state and displays them with
+    appropriate formatting based on the role and type:
+
+    - User messages are displayed in user chat bubbles
+    - Assistant messages are shown differently based on their type:
+        - Regular messages appear in assistant chat bubbles
+        - Handoff notifications appear as info messages with a brain icon
+        - Web search results appear as success messages with a search icon
+        - Tool calls are displayed as status messages with a tool icon
+
+    The function assumes messages are stored in session state (ss.messages) with the
+    following structure:
+    {
+        "role": str,  # "user" or "assistant"
+        "content": str,  # message content
+        "type": str,  # for assistant messages: "message", "handoff", "web_search", or "tool_call"
+        "name": str,  # only for tool calls
+    }
+    """
     for m in ss.messages:
         # user messages
         if m["role"] == "user":
